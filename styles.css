@@ -1,0 +1,413 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+*::before,
+::after {
+	box-sizing: border-box;
+}
+
+body {
+	background-color: orangered;
+	display: flex;
+	align-items: start;
+	justify-content: center;
+
+	overflow: hidden;
+}
+
+.site_section {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.kuzov {
+	width: 400px;
+	height: 700px;
+	border-radius: 40px;
+	border: 10px solid rgb(96, 74, 2);
+	transition: box-shadow 0.4s ease;
+}
+
+.kuzov:hover {
+	box-shadow: 40px 40px 40px 0 rgba(0, 0, 0, 0.5);
+	/* transition: all 0.4s ease; */
+	background-image: url(images/signal.png);
+}
+
+.blok {
+	width: 100%;
+	height: 100%;
+	border-radius: 30px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: start;
+	background-image: url(images/photo_2025-04-09_15-51-00.jpg);
+	background-size: contain;
+}
+
+.kuzov::before {
+	filter: blur(10px);
+}
+
+.camera-blok {
+	width: 300px;
+	height: 10px;
+	background-color: rgb(30, 29, 29);
+	border-bottom-left-radius: 50px;
+	border-bottom-right-radius: 50px;
+}
+.time {
+	margin-left: 5px;
+	color: white;
+}
+
+#clock {
+	color: #fff;
+	margin-right: 40px;
+}
+
+#speed-box {
+	color: #fff;
+	z-index: 9999;
+	position: fixed;
+	margin-left: 50px;
+}
+
+#wifi-box {
+}
+
+.set {
+	margin-left: 5px;
+	color: white;
+}
+
+.div1 {
+	width: 90%;
+	display: flex;
+	justify-content: space-between;
+}
+
+.camera {
+	width: 25px;
+	height: 25px;
+	background-color: rgb(52, 49, 49);
+	border-bottom-left-radius: 50px;
+	border-bottom-right-radius: 50px;
+	margin-left: 150px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	position: fixed;
+}
+
+.camera1 {
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	background-color: black;
+	margin-bottom: 5px;
+}
+
+/* .camera-flex {
+	width: 100%;
+	margin: 0;
+} */
+
+.sets {
+	margin-left: 160px;
+	display: flex;
+}
+.images {
+	filter: invert(1) brightness(1000%);
+	color: white;
+	margin-top: 5px;
+	width: 15px;
+	height: 15px;
+}
+
+#battery-box {
+	margin: 0;
+	padding: 0;
+}
+
+.images:not(:last-child) {
+	margin-right: 5px;
+}
+
+.input-div {
+	padding-right: 20px;
+	margin-top: 30px;
+	border-radius: 50px;
+	width: 90%;
+	height: 70px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: #171717;
+}
+
+.input {
+	margin: 20px;
+	padding-left: 20px;
+	color: white;
+	width: 70%;
+	height: 50px;
+	border-radius: 50px;
+	border: none;
+	font-size: 20px;
+	font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+
+	background-color: grey;
+}
+
+.input::placeholder {
+	color: white;
+}
+
+.voice-div {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	width: 50px;
+	height: 50px;
+	background-color: grey;
+}
+.voice {
+	filter: invert(1) brightness(1000%);
+	width: 30px;
+	height: 25px;
+}
+
+.mic-button {
+	background-color: #555;
+	border: none;
+	border-radius: 50%;
+	padding: 10px;
+	color: white;
+
+	cursor: pointer;
+	user-select: none;
+}
+
+.mic-button.recording {
+	background-color: red;
+}
+
+.grid {
+	height: 500px;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	justify-content: flex-end;
+}
+
+.list {
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: space-around;
+	margin-bottom: 20px;
+}
+
+.item {
+	list-style: none;
+}
+
+.social {
+	width: 50px;
+	height: 50px;
+	transition: all 0.4s ease;
+}
+
+.social:active {
+	transform: scale(0.9);
+}
+
+.item1 {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 50px;
+	height: 50px;
+	background-color: #fff;
+	border-radius: 40%;
+}
+
+.social1 {
+	border-radius: 40%;
+}
+
+.social2 {
+	width: 40px;
+	height: 40px;
+}
+
+.social2:active {
+	transform: scale(0.9);
+}
+
+.prilojeniya {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	margin-bottom: 25px;
+}
+.boxs {
+	width: 10px;
+	height: 10px;
+	background-color: grey;
+	margin: 10px;
+	border-radius: 5px;
+}
+
+.boxs:nth-child(3) {
+	background-color: white;
+}
+
+.site-footer {
+	width: 100%;
+	display: flex;
+	align-items: flex-end;
+}
+
+.end {
+	width: 100%;
+	display: flex;
+	justify-content: space-around;
+}
+
+.end-icons {
+	transform: rotate(90deg);
+}
+
+.end-icons:active {
+	filter: invert(1) brightness(50%);
+}
+
+.images2 {
+	filter: invert(1) brightness(1000%);
+	width: 20px;
+	height: 20px;
+}
+
+.home {
+	width: 25px;
+	height: 25px;
+	border-radius: 10px;
+	border: 3px solid white;
+}
+
+.och {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 8px;
+	height: 50px;
+	border-top-right-radius: 5px;
+	border-bottom-right-radius: 5px;
+	background-color: #171717;
+	margin-top: 180px;
+	transition: all 0.1s ease;
+}
+
+.oach {
+	width: 8px;
+	height: 50px;
+	border-top-right-radius: 5px;
+	border-bottom-right-radius: 5px;
+	background-color: #171717;
+	margin-top: 180px;
+	transition: all 0.1s ease;
+}
+
+.ch {
+	display: flex;
+	flex-direction: column;
+	align-items: end;
+}
+
+.pas {
+	border-radius: 5px 0 0 5px;
+	margin-top: 10px;
+}
+
+.bland {
+	margin-top: 170px;
+	border-radius: 5px 0 0 5px;
+}
+
+.pas:active,
+.bland:active {
+	width: 5px;
+}
+
+.och:active {
+	width: 5px;
+}
+
+.home:active {
+	filter: invert(1) brightness(50%);
+}
+.end-icons2:active {
+	filter: invert(1) brightness(50%);
+}
+
+.kuzov.active {
+	background-color: black;
+}
+
+.blok.active {
+	display: none;
+}
+
+.bottom-panel {
+	position: fixed;
+	left: 0;
+	bottom: -70%;
+	width: 400px;
+	height: 70%;
+	background: #fff;
+	border-top-left-radius: 20px;
+	border-top-right-radius: 20px;
+	box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
+	transition: bottom 0.3s ease;
+}
+
+.bottom-panel.active {
+	bottom: 0;
+	width: 400px;
+}
+
+.handle {
+	width: 60px;
+	height: 6px;
+	background: #ccc;
+	border-radius: 3px;
+	margin: 10px auto;
+}
+
+.content {
+	padding: 20px;
+	text-align: center;
+}
+ 
+
+.end {
+
+	position: relative;
+z-index: 9999;
+
+}
+
+.end a {position: relative
+	;
+z-index: 10000;
+
+}

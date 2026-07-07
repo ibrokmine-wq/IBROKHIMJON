@@ -1,2 +1,3 @@
-# IBROKHIMJON
-BILLIARD GAME 
+# samsungA20S
+# telefon
+# minimani
