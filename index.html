@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10 tasi 1 da 2D O'yinlar Arkadasi</title>
+    <style>
+        body { font-family: sans-serif; background: #222; color: #fff; text-align: center; margin: 0; padding: 20px; }
+        h1 { margin-bottom: 10px; }
+        #menu { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; max-width: 800px; margin: 20px auto; }
+        button { padding: 15px; background: #444; color: #fff; border: 2px solid #666; cursor: pointer; font-size: 16px; border-radius: 5px; }
+        button:hover { background: #666; }
+        #game-container { display: none; margin-top: 20px; }
+        canvas { background: #000; border: 4px solid #fff; display: block; margin: 0 auto; }
+        #back-btn { margin-top: 15px; padding: 10px 20px; background: #d9534f; border: none; color: white; cursor: pointer; border-radius: 5px; }
+        #ui-overlay { font-size: 20px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+    <h1>10 tasi 1 da O'yinlar Arkadasi</h1>
+    <p id="sub">O'ynash uchun quyidagi o'yinlardan birini tanlang:</p>
+
+    <!-- O'YINLAR MENYUSI -->
+    <div id="menu">
+        <button onclick="startGame(1)">1. Snake</button>
+        <button onclick="startGame(2)">2. Pong</button>
+        <button onclick="startGame(3)">3. Flappy Bird</button>
+        <button onclick="startGame(4)">4. Brick Breaker</button>
+        <button onclick="startGame(5)">5. Space Invaders</button>
+        <button onclick="startGame(6)">6. Tetris</button>
+        <button onclick="startGame(7)">7. Tic-Tac-Toe</button>
+        <button onclick="startGame(8)">8. Memory Game</button>
+        <button onclick="startGame(9)">9. Jumper</button>
+        <button onclick="startGame(10)">10. Clicker</button>
+    </div>
+
+    <!-- O'YIN MAYDONI -->
+    <div id="game-container">
+        <div id="ui-overlay">Ball: <span id="score">0</span></div>
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+        <br>
+        <button id="back-btn" onclick="backToMenu()">Menyuga qaytish</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const menu = document.getElementById("menu");
+        const container = document.getElementById("game-container");
+        const scoreEl = document.getElementById("score");
+        const sub = document.getElementById("sub");
+
+        let currentGame = 0;
+        let gameInterval;
+        let score = 0;
+        let keys = {};
+
+        window.addEventListener("keydown", e => keys[e.key] = true);
+        window.addEventListener("keyup", e => keys[e.key] = false);
+
+        function startGame(gameId) {
+            menu.style.display = "none";
+            sub.style.display = "none";
+            container.style.display = "block";
+            currentGame = gameId;
+            score = 0;
+            scoreEl.innerText = score;
+            clearInterval(gameInterval);
+            ctx.clearRect(0,0,400,400);
+            
+            // O'yinni sozlash va ishga tushirish
+            initGame(gameId);
+        }
+
+        function backToMenu() {
+            clearInterval(gameInterval);
+            container.style.display = "none";
+            menu.style.display = "grid";
+            sub.style.display = "block";
+            currentGame = 0;
+            canvas.onclick = null;
+        }
+
+        // --- O'YINLARNING LOGIKASI ---
+        let snake, food, dx, dy; // 1
+        let p1, p2, ball; // 2
+        let bird, pipes; // 3
+        let paddle, bricks, bBall; // 4
+        let player, lasers, aliens; // 5
+        let tetrisGrid, currentPiece; // 6
+        let tttGrid, turn; // 7
+        let cards, selected; // 8
+        let jumper, platforms; // 9
+        let clickTime, clicks; // 10
+
+        function initGame(id) {
+            if (id === 1) { // SNAKE
+                snake = [{x: 200, y: 200}]; dx = 20; dy = 0;
+                food = {x: Math.floor(Math.random()*20)*20, y: Math.floor(Math.random()*20)*20};
+                gameInterval = setInterval(() => {
+                    if(keys["ArrowUp"] && dy===0) { dx=0; dy=-20; }
+                    if(keys["ArrowDown"] && dy===0) { dx=0; dy=20; }
+                    if(keys["ArrowLeft"] && dx===0) { dx=-20; dy=0; }
+                    if(keys["ArrowRight"] && dx===0) { dx=20; dy=0; }
+                    let head = {x: snake[0].x + dx, y: snake[0].y + dy};
+                    if(head.x<0||head.x>=400||head.y<0||head.y>=400) return startGame(1);
+                    snake.unshift(head);
+                    if(head.x===food.x && head.y===food.y) { score++; scoreEl.innerText=score; food={x: Math.floor(Math.random()*20)*20, y: Math.floor(Math.random()*20)*20}; }
+                    else snake.pop();
+                    ctx.fillStyle="black"; ctx.fillRect(0,0,400,400);
+                    ctx.fillStyle="red"; ctx.fillRect(food.x, food.y, 18, 18);
+                    ctx.fillStyle="lime"; snake.forEach(p=>ctx.fillRect(p.x, p.y, 18, 18));
+                }, 100);
+            }
+            else if (id === 2) { // PONG
+                p1 = 160; p2 = 160; ball = {x:200, y:200, dx:4, dy:4};
+                gameInterval = setInterval(() => {
+                    if(keys["w"] && p1>0) p1-=5; if(keys["s"] && p1<320) p1+=5;
+                    if(ball.y < p2+20 && p2>0) p2-=4; else if(ball.y > p2+20 && p2<320) p2+=4;
+                    ball.x+=ball.dx; ball.y+=ball.dy;
+                    if(ball.y<=0 || ball.y>=390) ball.dy*=-1;
+                    if((ball.x<=20 && ball.y>=p1 && ball.y<=p1+80) || (ball.x>=370 && ball.y>=p2 && ball.y<=p2+80)) { ball.dx*=-1; score++; scoreEl.innerText=score; }
+                    if(ball.x<0 || ball.x>400) { ball.x=200; ball.y=200; }
+                    ctx.fillStyle="black"; ctx.fillRect(0,0,400,400);
+                    ctx.fillStyle="white"; ctx.fillRect(10, p1, 10, 80); ctx.fillRect(380, p2, 10, 80); ctx.fillRect(ball.x, ball.y, 10, 10);
+                }, 1000/60);
+            }
+            else if (id === 3) { // FLAPPY BIRD
+                bird = {y:200, v:0}; pipes = [{x:400, top:150, bottom:250}];
+                canvas.onclick = () => bird.v = -6;
+                gameInterval = setInterval(() => {
+                    bird.v += 0.3; bird.y += bird.v;
+                    if(bird.y>400 || bird.y<0) return startGame(3);
+                    ctx.fillStyle="black"; ctx.fillRect(0,0,400,400);
+                    ctx.fillStyle="yellow"; ctx.fillRect(50, bird.y, 20, 20);
+                    pipes.forEach(p => {
+                        p.x -= 2;
+                        ctx.fillStyle="green"; ctx.fillRect(p.x, 0, 40, p.top); ctx.fillRect(p.x, p.bottom, 40, 400-p.bottom);
+                        if(p.x===50) { score++; scoreEl.innerText=score; }
+                        if(p.x>10 && p.x<70 && (bird.y<p.top || bird.y+20>p.bottom)) return startGame(3);
+                    });
+                    if(pipes[0].x < -40) pipes.shift();
+                    if(pipes[pipes.length-1].x < 250) pipes.push({x:400, top:Math.random()*150+50, bottom:Math.random()*150+220});
+                }, 1000/60);
+            }
+            else if (id === 4) { // BRICK BREAKER
+                paddle = 160; bBall = {x:200, y:250, dx:3, dy:-3}; bricks = [];
+                for(let i=0; i<5; i++) for(let j=0; j<8; j++) bricks.push({x:j*50, y:i*20+30, active:true});
+                gameInterval = setInterval(() => {
+                    if(keys["ArrowLeft"] && paddle>0) paddle-=6; if(keys["ArrowRight"] && paddle<320) paddle+=6;
+                    bBall.x+=bBall.dx; bBall.y+=bBall.dy;
+                    if(bBall.x<=0 || bBall.x>=390) bBall.dx*=-1; if(bBall.y<=0) bBall.dy*=-1;
+                    if(bBall.y>=370 && bBall.x>=paddle && bBall.x<=paddle+80) bBall.dy*=-1;
+                    if(bBall.y>400) return startGame(4);
+                    bricks.forEach(b => {
+                        if(b.active && bBall.x>b.x && bBall.x<b.x+45 && bBall.y>b.y && bBall.y<b.y+15) { b.active=false; bBall.dy*=-1; score++; scoreEl.innerText=score; }
+                    });
+                    ctx.fillStyle="black"; ctx.fillRect(0,0,400,400);
+                    ctx.fillStyle="cyan"; ctx.fillRect(paddle, 380, 80, 10);
+                    ctx.fillStyle="white"; ctx.fillRect(bBall.x, bBall.y, 10, 10);
+                    ctx.fillStyle="orange"; bricks.forEach(b => { if(b.active) ctx.fillRect(b.x+2, b.y+2, 46, 16); });
+                }, 1000/60);
+            }
+            else if (id === 5) { // SPACE INVADERS
+                player = 180; lasers = []; aliens = [];
+                for(let i=0; i<3; i++) for(let j=0; j<6; j++) aliens.push({x:j*50+50, y:i*30+30, dir:1});
+                gameInterval = setInterval(() => {
+                    if(keys["ArrowLeft"] && player>0) player-=4; if(keys["ArrowRight"] && player<360) player+=4;
+                    if(keys[" "] && lasers.length<3) { lasers.push({x:player+18, y:370}); keys[" "]=false; }
+                    ctx.fillStyle="black"; ctx.fillRect(0,0,400,400);
+                    ctx.fillStyle="lime"; ctx.fillRect(player, 380, 40, 15);
+                    lasers.forEach((l,li) => { l.y-=6; ctx.fillStyle="red"; ctx.fillRect(l.x, l.y, 4, 10); if(l.y<0) lasers.splice(li,1); });
+                    aliens.forEach((a,ai) => {
+                        a.x += a.dir * 1; if(a.x>360 || a.x<10) { aliens.forEach(al=> {al.dir*=-1; al.y+=10;}); }
+                        ctx.fillStyle="white"; ctx.fillRect(a.x, a.y, 30, 20);
+                        lasers.forEach((l,li) => { if(l.x>a.x && l.x<a.x+30 && l.y>a.y && l.y<a.y+20) { aliens.splice(ai,1); lasers.splice(li,1); score++; scoreEl.innerText=score; } });
+                        if(a.y>350) return startGame(5);
+                    });
+                }, 1000/60);
+            }
+            else if (id === 6) { // TETRIS (MINI)
+                tetrisGrid = Array(20).fill().map(()=>Array(10).fill(0));
+                currentPiece = {x:4, y:0, matrix:[[1,1],[1,1]]};
+                gameInterval = setInterval(() => {
+                    currentPiece.y++;
+                    if(currentPiece.y>18) {
+                        currentPiece.matrix.forEach((row,ri)=>row.forEach((v,ci)=>{ if(v) tetrisGrid[currentPiece.y-1+ri][currentPiece.x+ci]=1; }));
+                        currentPiece = {x:4, y:0, matrix:[[1,1],[1,1]]}; score++; scoreEl.innerText=score;
+                    }
+                    ctx.fillStyle="black"; ctx.fillRect(0,0,400,400);
+                    ctx.fillStyle="purple"; currentPiece.matrix.forEach((row,r)=>row.forEach((v,c)=>{ if(v) ctx.fillRect((currentPiece.x+c)*40, (currentPiece.y+r)*20, 38, 18); }));
+                    ctx.fillStyle="gray"; tetrisGrid.forEach((row,r)=>row.forEach((v,c)=>{ if(v) ctx.fillRect(c*40, r*20, 38, 18); }));
+                }, 300);
+            }
+            else if (id === 7) { // TIC-TAC-TOE
+                tttGrid = Array(9).fill(""); turn = "X";
+                canvas.onclick = (e) => {
+                    let rect = canvas.getBoundingClientRect(); let x = Math.floor((e.clientX - rect.left)/133); let y = Math.floor((e.clientY - rect.top)/133);
+                    let idx = y*3+x; if(tttGrid[idx]==="") { tttGrid[idx]="X"; score++; scoreEl.innerText=score; botMove(); }
+                };
+                function botMove() { let empty = tttGrid.map((v,i)=>v===""?i:null).filter(v=>v!==null); if(empty.length>0) tttGrid[empty[Math.floor(Math.random()*empty.length)]] = "O"; }
+                gameInterval = setInterval(() => {
+                    ctx.fillStyle="black"; ctx.fillRect(0,0,400,400); ctx.strokeStyle="white"; ctx.lineWidth=5;
+                    ctx.beginPath(); ctx.moveTo(133,0); ctx.lineTo(133,400); ctx.moveTo(266,0); ctx.lineTo(266,400); ctx.moveTo(0,133); ctx.lineTo(400,133); ctx.moveTo(0,266); ctx.lineTo(400,266); ctx.stroke();
+                    ctx.font = "80px Arial"; ctx.fillStyle="white"; ctx.textAlign="center";
+                    tttGrid.forEach((v,i)=> { if(v) ctx.fillText(v, (i%3)*133+66, Math.floor(i/3)*133+100); });
+                }, 100);
+            }
+            else if (id === 8) { // MEMORY GAME
+                let colors = ["red","red","blue","blue","green","green","yellow","yellow","purple","purple","orange","orange","pink","pink","cyan","cyan"];
+                colors.sort(()=>Math.random()-0.5); cards = colors.map(c=>({color:c, open:false, matched:false})); selected = [];
+                canvas.onclick = (e) => {
+                    let rect = canvas.getBoundingClientRect(); let x = Math.floor((e.clientX - rect.left)/100); let y = Math.floor((e.clientY - rect.top)/100); let idx = y*4+x;
+                    if(!cards[idx].open && selected.length<2) { cards[idx].open=true; selected.push(idx); }
+                    if(selected.length===2) {
+                        if(cards[selected[0]].color === cards[selected[1]].color) { cards[selected[0]].matched=cards[selected[1]].matched=true; score+=10; scoreEl.innerText=score; selected=[]; }
+                        else { setTimeout(()=>{ cards[selected[0]].open=cards[selected[1]].open=false; selected=[]; }, 500); }
+                    }
+                };
+                gameInterval = setInterval(() => {
+                    ctx.fillStyle="black"; ctx.fillRect(0,0,400,400);
+                    cards.forEach((c,i)=> {
+                        ctx.fillStyle = (c.open || c.matched) ? c.color : "gray";
+                        ctx.fillRect((i%4)*100+5, Math.floor(i/4)*100+5, 90, 90);
+                    });
+                }, 100);
+            }
+            else if (id === 9) { // JUMPER
+                jumper = {x:200, y:300, vy:0}; platforms = []; for(let i=0; i<6; i++) platforms.push({x:Math.random()*340, y:i*70+50});
+                gameInterval = setInterval(() => {
+                    if(keys["ArrowLeft"]) jumper.x-=4; if(keys["ArrowRight"]) jumper.x+=4;
+                    jumper.vy += 0.2; jumper.y += jumper.vy;
+                    platforms.forEach(p=> {
+                        if(jumper.vy>0 && jumper.x+20>p.x && jumper.x<p.x+60 && jumper.y+20>=p.y && jumper.y+20<=p.y+10) { jumper.vy=-8; score++; scoreEl.innerText=score; }
+                    });
+                    if(jumper.y>400) return startGame(9);
+                    ctx.fillStyle="black"; ctx.fillRect(0,0,400,400);
+                    ctx.fillStyle="red"; ctx.fillRect(jumper.x, jumper.y, 20, 20);
+                    ctx.fillStyle="white"; platforms.forEach(p=>ctx.fillRect(p.x, p.y, 60, 10));
+                }, 1000/60);
+            }
+            else if (id === 10) { // CLICKER
+                clickTime = 100; clicks = 0;
+                canvas.onclick = () => { if(clickTime>0) { clicks++; score=clicks; scoreEl.innerText=score; } };
+                gameInterval = setInterval(() => {
+                    clickTime--; ctx.fillStyle="black"; ctx.fillRect(0,0,400,400);
+                    ctx.fillStyle="white"; ctx.font="30px Arial"; ctx.textAlign="center";
+                    if(clickTime>0) { ctx.fillText("EKRANNI TEZROQ BOSING!", 200, 150); ctx.fillText("Vaqt: " + clickTime, 200, 250); }
+                    else { ctx.fillText("O'YIN TUGADI!", 200, 150); ctx.fillText("Jami kliklar: " + clicks, 200, 250); }
+                }, 100);
+            }
+        }
+    </script>
+</body>
+</html>
