@@ -1,256 +1,843 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>10 tasi 1 da 2D O'yinlar Arkadasi</title>
-    <style>
-        body { font-family: sans-serif; background: #222; color: #fff; text-align: center; margin: 0; padding: 20px; }
-        h1 { margin-bottom: 10px; }
-        #menu { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; max-width: 800px; margin: 20px auto; }
-        button { padding: 15px; background: #444; color: #fff; border: 2px solid #666; cursor: pointer; font-size: 16px; border-radius: 5px; }
-        button:hover { background: #666; }
-        #game-container { display: none; margin-top: 20px; }
-        canvas { background: #000; border: 4px solid #fff; display: block; margin: 0 auto; }
-        #back-btn { margin-top: 15px; padding: 10px 20px; background: #d9534f; border: none; color: white; cursor: pointer; border-radius: 5px; }
-        #ui-overlay { font-size: 20px; margin-bottom: 10px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hilol Mini Market</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+body{background:#f5f5f5;color:#1a1a1a;padding-bottom:80px;}
+
+/* ===== HEADER ===== */
+header{
+  background:#fff;
+  border-bottom:1px solid #e8e8e8;
+  padding:0 16px;
+  height:56px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  position:sticky;top:0;z-index:200;
+  box-shadow:0 1px 4px rgba(0,0,0,0.07);
+}
+.logo-wrap{display:flex;align-items:center;gap:9px;cursor:pointer;text-decoration:none;}
+.logo-svg{width:38px;height:38px;flex-shrink:0;}
+.logo-name{font-family:Georgia,serif;font-size:16px;font-weight:700;color:#1a6b2f;line-height:1.1;}
+.logo-name small{display:block;font-size:9px;font-weight:500;color:#4caf50;letter-spacing:2px;text-transform:uppercase;font-family:sans-serif;}
+.header-search{
+  flex:1;max-width:420px;margin:0 16px;
+  display:flex;align-items:center;
+  background:#f5f5f5;border:1px solid #e0e0e0;
+  border-radius:10px;padding:0 12px;height:36px;gap:8px;
+}
+.header-search input{border:none;background:none;outline:none;font-size:13px;width:100%;color:#1a1a1a;}
+.header-search input::placeholder{color:#999;}
+.header-right{display:flex;align-items:center;gap:4px;}
+.hdr-btn{
+  background:none;border:none;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;
+  font-size:10px;color:#666;padding:4px 8px;border-radius:8px;gap:2px;
+  transition:background .15s;
+}
+.hdr-btn:hover{background:#f5f5f5;}
+.hdr-btn svg{width:20px;height:20px;}
+.hdr-btn.green{color:#1a6b2f;}
+.cart-count{
+  background:#e53935;color:#fff;font-size:9px;font-weight:700;
+  border-radius:50%;width:16px;height:16px;
+  display:none;align-items:center;justify-content:center;
+  position:absolute;top:4px;right:4px;
+}
+.hdr-btn-wrap{position:relative;}
+
+/* ===== BOTTOM NAV ===== */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;
+  background:#fff;border-top:1px solid #e8e8e8;
+  display:flex;z-index:300;
+  box-shadow:0 -2px 8px rgba(0,0,0,0.08);
+}
+.nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:8px 4px 10px;
+  cursor:pointer;font-size:10px;color:#999;gap:3px;
+  border:none;background:none;transition:color .15s;
+}
+.nav-item svg{width:22px;height:22px;}
+.nav-item.active{color:#1a6b2f;}
+.nav-item span{font-size:10px;font-weight:500;}
+.nav-badge{
+  background:#e53935;color:#fff;font-size:8px;font-weight:700;
+  border-radius:50%;width:14px;height:14px;
+  display:none;align-items:center;justify-content:center;
+  position:absolute;top:6px;right:calc(50% - 18px);
+}
+
+/* ===== MAIN PAGES ===== */
+.page{display:none;}
+.page.active{display:block;}
+
+/* ===== HOME PAGE ===== */
+.hero-banner{
+  background:linear-gradient(135deg,#1a6b2f,#4caf50);
+  color:#fff;padding:20px 16px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.hero-banner h2{font-size:18px;font-weight:700;margin-bottom:6px;}
+.hero-banner p{font-size:12px;opacity:.85;}
+.hero-btn{
+  background:#fff;color:#1a6b2f;
+  border:none;padding:8px 16px;border-radius:8px;
+  font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;
+}
+
+.section-title{
+  font-size:15px;font-weight:700;color:#1a1a1a;
+  padding:16px 16px 8px;
+}
+.category-scroll{
+  display:flex;gap:10px;overflow-x:auto;padding:0 16px 12px;
+  scrollbar-width:none;
+}
+.category-scroll::-webkit-scrollbar{display:none;}
+.cat-chip{
+  flex-shrink:0;background:#fff;border:1.5px solid #e0e0e0;
+  border-radius:20px;padding:6px 14px;font-size:12px;font-weight:500;
+  cursor:pointer;white-space:nowrap;transition:all .15s;color:#444;
+}
+.cat-chip.active,.cat-chip:hover{background:#1a6b2f;color:#fff;border-color:#1a6b2f;}
+
+/* ===== PRODUCT GRID ===== */
+.product-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(155px,1fr));
+  gap:10px;padding:0 12px 16px;
+}
+.prod-card{
+  background:#fff;border-radius:12px;overflow:hidden;
+  border:1px solid #f0f0f0;cursor:pointer;
+  transition:transform .15s,box-shadow .15s;
+}
+.prod-card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.1);}
+.prod-img{
+  width:100%;height:140px;object-fit:cover;
+  background:#f9f9f9;display:block;
+}
+.prod-body{padding:10px 10px 12px;}
+.prod-name{font-size:12px;color:#1a1a1a;margin-bottom:4px;line-height:1.35;font-weight:500;min-height:32px;}
+.prod-weight{font-size:11px;color:#999;margin-bottom:6px;}
+.prod-row{display:flex;align-items:center;justify-content:space-between;}
+.prod-price{font-size:14px;font-weight:700;color:#1a1a1a;}
+.prod-price small{font-size:11px;font-weight:400;color:#999;}
+.add-btn{
+  width:30px;height:30px;border-radius:8px;
+  background:#1a6b2f;color:#fff;border:none;
+  font-size:18px;cursor:pointer;display:flex;
+  align-items:center;justify-content:center;
+  transition:background .15s;flex-shrink:0;
+}
+.add-btn:hover{background:#145a26;}
+.qty-ctrl{display:flex;align-items:center;gap:4px;}
+.qty-ctrl button{
+  width:26px;height:26px;border-radius:6px;border:none;
+  background:#f0f0f0;color:#1a1a1a;font-size:14px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-weight:700;
+}
+.qty-ctrl button.plus{background:#1a6b2f;color:#fff;}
+.qty-ctrl span{font-size:13px;font-weight:600;min-width:18px;text-align:center;}
+
+/* ===== SEARCH PAGE ===== */
+.search-wrap{padding:12px 16px;}
+.search-big{
+  display:flex;align-items:center;
+  background:#f5f5f5;border:1.5px solid #e0e0e0;
+  border-radius:12px;padding:0 14px;height:42px;gap:10px;
+}
+.search-big input{border:none;background:none;outline:none;font-size:14px;width:100%;}
+#searchResults{padding:0 12px;}
+
+/* ===== CART PAGE ===== */
+.cart-wrap{padding:12px 16px;}
+.cart-item-row{
+  background:#fff;border-radius:12px;padding:12px;
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:10px;border:1px solid #f0f0f0;
+}
+.cart-item-img{width:60px;height:60px;border-radius:8px;object-fit:cover;background:#f5f5f5;}
+.cart-item-info{flex:1;}
+.cart-item-name{font-size:13px;font-weight:600;margin-bottom:3px;}
+.cart-item-price{font-size:13px;color:#1a6b2f;font-weight:700;}
+.cart-del{background:none;border:none;cursor:pointer;color:#ccc;font-size:18px;padding:4px;}
+.cart-del:hover{color:#e53935;}
+.cart-summary{
+  background:#fff;border-radius:12px;padding:16px;
+  border:1px solid #f0f0f0;margin-top:16px;
+}
+.cart-summary-row{display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px;color:#666;}
+.cart-summary-total{display:flex;justify-content:space-between;font-size:15px;font-weight:700;margin-top:10px;padding-top:10px;border-top:1px solid #f0f0f0;}
+.order-btn{
+  background:#1a6b2f;color:#fff;border:none;
+  padding:14px;border-radius:12px;font-size:15px;font-weight:700;
+  width:100%;cursor:pointer;margin-top:14px;
+}
+.order-btn:hover{background:#145a26;}
+.cart-empty{text-align:center;padding:60px 16px;color:#999;}
+.cart-empty svg{width:64px;height:64px;margin-bottom:16px;opacity:.3;}
+.cart-empty p{font-size:15px;margin-bottom:8px;font-weight:600;color:#555;}
+.cart-empty small{font-size:13px;}
+
+/* ===== ACCOUNT PAGE ===== */
+.account-wrap{padding:16px;}
+.account-header-card{
+  background:linear-gradient(135deg,#1a6b2f,#4caf50);
+  border-radius:16px;padding:24px 20px;color:#fff;
+  display:flex;align-items:center;gap:16px;margin-bottom:16px;
+}
+.account-avatar{
+  width:60px;height:60px;border-radius:50%;
+  background:rgba(255,255,255,.25);
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;font-weight:700;flex-shrink:0;
+}
+.account-name{font-size:17px;font-weight:700;}
+.account-email{font-size:12px;opacity:.85;margin-top:2px;}
+.account-menu-item{
+  background:#fff;border-radius:12px;padding:14px 16px;
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:8px;cursor:pointer;border:1px solid #f0f0f0;
+  transition:background .15s;
+}
+.account-menu-item:hover{background:#f9f9f9;}
+.account-menu-icon{width:36px;height:36px;border-radius:10px;background:#e8f5e9;display:flex;align-items:center;justify-content:center;}
+.account-menu-icon svg{width:18px;height:18px;color:#1a6b2f;}
+.account-menu-text{flex:1;}
+.account-menu-text strong{font-size:13px;display:block;margin-bottom:2px;}
+.account-menu-text small{font-size:11px;color:#999;}
+.chevron{color:#ccc;}
+
+/* ===== SEASONAL PAGE ===== */
+.seasonal-hero{
+  background:linear-gradient(135deg,#1565c0,#42a5f5);
+  padding:24px 16px;color:#fff;
+}
+.seasonal-hero h2{font-size:20px;font-weight:700;margin-bottom:6px;}
+.seasonal-hero p{font-size:13px;opacity:.9;}
+
+/* ===== FOOD PAGE ===== */
+.food-cats{display:flex;gap:8px;overflow-x:auto;padding:12px 16px;scrollbar-width:none;}
+.food-cats::-webkit-scrollbar{display:none;}
+.food-cat-btn{
+  flex-shrink:0;padding:8px 16px;border-radius:20px;
+  border:1.5px solid #e0e0e0;background:#fff;
+  font-size:12px;font-weight:500;cursor:pointer;
+  color:#444;transition:all .15s;
+}
+.food-cat-btn.active,.food-cat-btn:hover{background:#1a6b2f;color:#fff;border-color:#1a6b2f;}
+
+/* ===== RIGHT PANEL ===== */
+.right-panel{
+  position:fixed;top:0;right:-360px;width:340px;height:100%;
+  background:#fff;box-shadow:-4px 0 16px rgba(0,0,0,0.12);
+  z-index:500;transition:.3s ease;display:flex;flex-direction:column;
+}
+.right-panel.open{right:0;}
+.right-panel-header{
+  padding:16px 20px;border-bottom:1px solid #f0f0f0;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.right-panel-header h3{font-size:16px;font-weight:700;}
+.panel-close{background:none;border:none;font-size:22px;cursor:pointer;color:#999;}
+.right-panel-body{flex:1;overflow-y:auto;padding:16px 20px;}
+.right-panel-footer{padding:16px 20px;border-top:1px solid #f0f0f0;}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:490;display:none;}
+.overlay.show{display:block;}
+
+/* ===== MODAL ===== */
+.modal{
+  position:fixed;inset:0;background:rgba(0,0,0,.5);
+  display:none;align-items:center;justify-content:center;z-index:600;
+}
+.modal.show{display:flex;}
+.modal-card{
+  background:#fff;border-radius:16px;width:92%;max-width:360px;
+  padding:32px 24px;text-align:center;position:relative;
+}
+.modal-logo{
+  font-family:Georgia,serif;font-size:22px;font-weight:700;
+  color:#1a6b2f;margin-bottom:24px;
+}
+.m-input{
+  width:100%;background:#f5f5f5;border:1.5px solid #e8e8e8;
+  border-radius:10px;padding:11px 14px;font-size:13px;
+  outline:none;margin-bottom:10px;color:#1a1a1a;
+}
+.m-input:focus{border-color:#1a6b2f;}
+.m-submit{
+  width:100%;background:#1a6b2f;color:#fff;border:none;
+  padding:12px;border-radius:10px;font-size:14px;font-weight:700;
+  cursor:pointer;margin-top:4px;
+}
+.m-close{position:absolute;top:12px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:#999;}
+</style>
 </head>
 <body>
 
-    <h1>10 tasi 1 da O'yinlar Arkadasi</h1>
-    <p id="sub">O'ynash uchun quyidagi o'yinlardan birini tanlang:</p>
+<!-- ===== HEADER ===== -->
+<header>
+  <a class="logo-wrap" onclick="showPage('home')" href="javascript:void(0)">
+    <svg class="logo-svg" viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="mg" cx="40%" cy="35%" r="65%"><stop offset="0%" stop-color="#4caf50"/><stop offset="100%" stop-color="#1a6b2f"/></radialGradient>
+        <radialGradient id="lg" cx="30%" cy="30%" r="70%"><stop offset="0%" stop-color="#66bb6a"/><stop offset="100%" stop-color="#2e7d32"/></radialGradient>
+        <radialGradient id="dg" cx="35%" cy="25%" r="65%"><stop offset="0%" stop-color="#e8f5e9"/><stop offset="60%" stop-color="#b2dfdb"/><stop offset="100%" stop-color="#80cbc4"/></radialGradient>
+      </defs>
+      <path d="M21 4 A17 17 0 1 1 4 21 A12 12 0 1 0 21 4 Z" fill="url(#mg)"/>
+      <path d="M17 26 C14 20 16 14 21 13 C21 13 22 19 19 23 Z" fill="url(#lg)"/>
+      <path d="M17 26 C17 26 19 22 21 13" stroke="#1b5e20" stroke-width="0.5" fill="none"/>
+      <path d="M23 12 C23 12 27 18 27 21 C27 23.8 25.2 26 23 26 C20.8 26 19 23.8 19 21 C19 18 23 12 23 12 Z" fill="url(#dg)" opacity=".92"/>
+    </svg>
+    <span class="logo-name">HILOL<small>Mini Market</small></span>
+  </a>
 
-    <!-- O'YINLAR MENYUSI -->
-    <div id="menu">
-        <button onclick="startGame(1)">1. Snake</button>
-        <button onclick="startGame(2)">2. Pong</button>
-        <button onclick="startGame(3)">3. Flappy Bird</button>
-        <button onclick="startGame(4)">4. Brick Breaker</button>
-        <button onclick="startGame(5)">5. Space Invaders</button>
-        <button onclick="startGame(6)">6. Tetris</button>
-        <button onclick="startGame(7)">7. Tic-Tac-Toe</button>
-        <button onclick="startGame(8)">8. Memory Game</button>
-        <button onclick="startGame(9)">9. Jumper</button>
-        <button onclick="startGame(10)">10. Clicker</button>
+  <div class="header-search">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" placeholder="Mahsulot qidiring..." id="headerSearch" oninput="headerSearchFn(this.value)" onfocus="showPage('search')">
+  </div>
+
+  <div class="header-right">
+    <div class="hdr-btn-wrap">
+      <button class="hdr-btn green" onclick="openRightPanel('cart')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        Savat
+      </button>
+      <span class="cart-count" id="cartCountBadge">0</span>
+    </div>
+  </div>
+</header>
+
+<!-- ===== BOTTOM NAV ===== -->
+<nav class="bottom-nav">
+  <button class="nav-item active" id="nav-home" onclick="showPage('home')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span>Asosiy</span>
+  </button>
+  <button class="nav-item" id="nav-food" onclick="showPage('food')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>
+    <span>Oziq-ovqat</span>
+  </button>
+  <button class="nav-item" id="nav-cart" onclick="showPage('cartpage')">
+    <div style="position:relative;display:inline-block;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      <span class="nav-badge" id="navCartBadge">0</span>
+    </div>
+    <span>Savat</span>
+  </button>
+  <button class="nav-item" id="nav-search" onclick="showPage('search')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <span>Qidiruv</span>
+  </button>
+  <button class="nav-item" id="nav-seasonal" onclick="showPage('seasonal')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    <span>Mavsumiy</span>
+  </button>
+  <button class="nav-item" id="nav-account" onclick="checkAuthAndOpenProfile()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span id="accountNavLabel">Kabinet</span>
+  </button>
+</nav>
+
+<!-- ===== UZUM USLUBIDAGI LOGIN/REGISTER MODAL OYNASI ===== -->
+<div class="modal" id="authModal">
+  <div class="modal-card">
+    <button class="m-close" onclick="closeModal('authModal')">&#x2715;</button>
+    <div class="modal-logo">Hilol Mini Market</div>
+
+    <!-- 1-Qadam: Telefon raqam kiritish -->
+    <div id="authStepPhone">
+      <h3 style="margin-bottom: 8px; font-size: 18px;">Telefon raqam</h3>
+      <p style="color: #777; font-size: 13px; margin-bottom: 16px;">Tasdiqlash kodini yuboramiz</p>
+      <input class="m-input" type="tel" id="authPhone" placeholder="+998 (__) ___-__-__" required>
+      <button class="m-submit" type="button" onclick="sendAuthSms()">Kodni olish</button>
     </div>
 
-    <!-- O'YIN MAYDONI -->
-    <div id="game-container">
-        <div id="ui-overlay">Ball: <span id="score">0</span></div>
-        <canvas id="gameCanvas" width="400" height="400"></canvas>
-        <br>
-        <button id="back-btn" onclick="backToMenu()">Menyuga qaytish</button>
+    <!-- 2-Qadam: SMS kodni kiritish -->
+    <div id="authStepSms" style="display: none;">
+      <h3 style="margin-bottom: 8px; font-size: 18px;">Kod keldi</h3>
+      <p style="color: #777; font-size: 13px; margin-bottom: 16px;">Raqamingizga yuborilgan 4 xonali kodni kiriting</p>
+      <input class="m-input" type="text" id="authSmsCode" placeholder="____" maxlength="4" style="text-align: center; letter-spacing: 8px; font-size: 20px;" required>
+      <button class="m-submit" type="button" onclick="verifyAuthSms()">Tasdiqlash</button>
+      <p style="text-align: center; margin-top: 12px; font-size: 13px;"><a href="javascript:void(0)" onclick="backToPhoneStep()" style="color: #2e7d32;">Raqamni o'zgartirish</a></p>
     </div>
 
-    <script>
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
-        const menu = document.getElementById("menu");
-        const container = document.getElementById("game-container");
-        const scoreEl = document.getElementById("score");
-        const sub = document.getElementById("sub");
+    <!-- 3-Qadam: Ismni so'rash -->
+    <div id="authStepName" style="display: none;">
+      <h3 style="margin-bottom: 8px; font-size: 18px;">Tanishamiz!</h3>
+      <p style="color: #777; font-size: 13px; margin-bottom: 16px;">Iltimos, ismingizni kiriting</p>
+      <input class="m-input" type="text" id="authUserName" placeholder="Ismingiz" required>
+      <button class="m-submit" type="button" onclick="completeAuthName()">Saqlash va kirish</button>
+    </div>
+  </div>
+</div>
 
-        let currentGame = 0;
-        let gameInterval;
-        let score = 0;
-        let keys = {};
+<!-- ===== OVERLAY ===== -->
+<div class="overlay" id="overlay" onclick="closeRightPanel()"></div>
 
-        window.addEventListener("keydown", e => keys[e.key] = true);
-        window.addEventListener("keyup", e => keys[e.key] = false);
+<!-- ===== RIGHT PANEL ===== -->
+<div class="right-panel" id="rightPanel">
+  <div class="right-panel-header">
+    <h3 id="rightPanelTitle">Panel</h3>
+    <button class="panel-close" onclick="closeRightPanel()">&#x2715;</button>
+  </div>
+  <div class="right-panel-body" id="rightPanelBody"></div>
+  <div class="right-panel-footer" id="rightPanelFooter" style="display:none;"></div>
+</div>
 
-        function startGame(gameId) {
-            menu.style.display = "none";
-            sub.style.display = "none";
-            container.style.display = "block";
-            currentGame = gameId;
-            score = 0;
-            scoreEl.innerText = score;
-            clearInterval(gameInterval);
-            ctx.clearRect(0,0,400,400);
-            
-            // O'yinni sozlash va ishga tushirish
-            initGame(gameId);
-        }
+<!-- ===== HOME PAGE ===== -->
+<main class="page active" id="page-home">
+  <div class="hero-banner">
+    <div>
+      <h2>Yangi va sifatli mahsulotlar</h2>
+      <p>Tezkor yetkazib berish • Halol mahsulotlar</p>
+    </div>
+    <button class="hero-btn" onclick="showPage('food')">Barchasi</button>
+  </div>
 
-        function backToMenu() {
-            clearInterval(gameInterval);
-            container.style.display = "none";
-            menu.style.display = "grid";
-            sub.style.display = "block";
-            currentGame = 0;
-            canvas.onclick = null;
-        }
+  <div class="section-title">Kategoriyalar</div>
+  <div class="category-scroll" id="homeCats"></div>
 
-        // --- O'YINLARNING LOGIKASI ---
-        let snake, food, dx, dy; // 1
-        let p1, p2, ball; // 2
-        let bird, pipes; // 3
-        let paddle, bricks, bBall; // 4
-        let player, lasers, aliens; // 5
-        let tetrisGrid, currentPiece; // 6
-        let tttGrid, turn; // 7
-        let cards, selected; // 8
-        let jumper, platforms; // 9
-        let clickTime, clicks; // 10
+  <div class="section-title" id="homeGridTitle">Barcha mahsulotlar</div>
+  <div class="product-grid" id="homeGrid"></div>
+</main>
 
-        function initGame(id) {
-            if (id === 1) { // SNAKE
-                snake = [{x: 200, y: 200}]; dx = 20; dy = 0;
-                food = {x: Math.floor(Math.random()*20)*20, y: Math.floor(Math.random()*20)*20};
-                gameInterval = setInterval(() => {
-                    if(keys["ArrowUp"] && dy===0) { dx=0; dy=-20; }
-                    if(keys["ArrowDown"] && dy===0) { dx=0; dy=20; }
-                    if(keys["ArrowLeft"] && dx===0) { dx=-20; dy=0; }
-                    if(keys["ArrowRight"] && dx===0) { dx=20; dy=0; }
-                    let head = {x: snake[0].x + dx, y: snake[0].y + dy};
-                    if(head.x<0||head.x>=400||head.y<0||head.y>=400) return startGame(1);
-                    snake.unshift(head);
-                    if(head.x===food.x && head.y===food.y) { score++; scoreEl.innerText=score; food={x: Math.floor(Math.random()*20)*20, y: Math.floor(Math.random()*20)*20}; }
-                    else snake.pop();
-                    ctx.fillStyle="black"; ctx.fillRect(0,0,400,400);
-                    ctx.fillStyle="red"; ctx.fillRect(food.x, food.y, 18, 18);
-                    ctx.fillStyle="lime"; snake.forEach(p=>ctx.fillRect(p.x, p.y, 18, 18));
-                }, 100);
-            }
-            else if (id === 2) { // PONG
-                p1 = 160; p2 = 160; ball = {x:200, y:200, dx:4, dy:4};
-                gameInterval = setInterval(() => {
-                    if(keys["w"] && p1>0) p1-=5; if(keys["s"] && p1<320) p1+=5;
-                    if(ball.y < p2+20 && p2>0) p2-=4; else if(ball.y > p2+20 && p2<320) p2+=4;
-                    ball.x+=ball.dx; ball.y+=ball.dy;
-                    if(ball.y<=0 || ball.y>=390) ball.dy*=-1;
-                    if((ball.x<=20 && ball.y>=p1 && ball.y<=p1+80) || (ball.x>=370 && ball.y>=p2 && ball.y<=p2+80)) { ball.dx*=-1; score++; scoreEl.innerText=score; }
-                    if(ball.x<0 || ball.x>400) { ball.x=200; ball.y=200; }
-                    ctx.fillStyle="black"; ctx.fillRect(0,0,400,400);
-                    ctx.fillStyle="white"; ctx.fillRect(10, p1, 10, 80); ctx.fillRect(380, p2, 10, 80); ctx.fillRect(ball.x, ball.y, 10, 10);
-                }, 1000/60);
-            }
-            else if (id === 3) { // FLAPPY BIRD
-                bird = {y:200, v:0}; pipes = [{x:400, top:150, bottom:250}];
-                canvas.onclick = () => bird.v = -6;
-                gameInterval = setInterval(() => {
-                    bird.v += 0.3; bird.y += bird.v;
-                    if(bird.y>400 || bird.y<0) return startGame(3);
-                    ctx.fillStyle="black"; ctx.fillRect(0,0,400,400);
-                    ctx.fillStyle="yellow"; ctx.fillRect(50, bird.y, 20, 20);
-                    pipes.forEach(p => {
-                        p.x -= 2;
-                        ctx.fillStyle="green"; ctx.fillRect(p.x, 0, 40, p.top); ctx.fillRect(p.x, p.bottom, 40, 400-p.bottom);
-                        if(p.x===50) { score++; scoreEl.innerText=score; }
-                        if(p.x>10 && p.x<70 && (bird.y<p.top || bird.y+20>p.bottom)) return startGame(3);
-                    });
-                    if(pipes[0].x < -40) pipes.shift();
-                    if(pipes[pipes.length-1].x < 250) pipes.push({x:400, top:Math.random()*150+50, bottom:Math.random()*150+220});
-                }, 1000/60);
-            }
-            else if (id === 4) { // BRICK BREAKER
-                paddle = 160; bBall = {x:200, y:250, dx:3, dy:-3}; bricks = [];
-                for(let i=0; i<5; i++) for(let j=0; j<8; j++) bricks.push({x:j*50, y:i*20+30, active:true});
-                gameInterval = setInterval(() => {
-                    if(keys["ArrowLeft"] && paddle>0) paddle-=6; if(keys["ArrowRight"] && paddle<320) paddle+=6;
-                    bBall.x+=bBall.dx; bBall.y+=bBall.dy;
-                    if(bBall.x<=0 || bBall.x>=390) bBall.dx*=-1; if(bBall.y<=0) bBall.dy*=-1;
-                    if(bBall.y>=370 && bBall.x>=paddle && bBall.x<=paddle+80) bBall.dy*=-1;
-                    if(bBall.y>400) return startGame(4);
-                    bricks.forEach(b => {
-                        if(b.active && bBall.x>b.x && bBall.x<b.x+45 && bBall.y>b.y && bBall.y<b.y+15) { b.active=false; bBall.dy*=-1; score++; scoreEl.innerText=score; }
-                    });
-                    ctx.fillStyle="black"; ctx.fillRect(0,0,400,400);
-                    ctx.fillStyle="cyan"; ctx.fillRect(paddle, 380, 80, 10);
-                    ctx.fillStyle="white"; ctx.fillRect(bBall.x, bBall.y, 10, 10);
-                    ctx.fillStyle="orange"; bricks.forEach(b => { if(b.active) ctx.fillRect(b.x+2, b.y+2, 46, 16); });
-                }, 1000/60);
-            }
-            else if (id === 5) { // SPACE INVADERS
-                player = 180; lasers = []; aliens = [];
-                for(let i=0; i<3; i++) for(let j=0; j<6; j++) aliens.push({x:j*50+50, y:i*30+30, dir:1});
-                gameInterval = setInterval(() => {
-                    if(keys["ArrowLeft"] && player>0) player-=4; if(keys["ArrowRight"] && player<360) player+=4;
-                    if(keys[" "] && lasers.length<3) { lasers.push({x:player+18, y:370}); keys[" "]=false; }
-                    ctx.fillStyle="black"; ctx.fillRect(0,0,400,400);
-                    ctx.fillStyle="lime"; ctx.fillRect(player, 380, 40, 15);
-                    lasers.forEach((l,li) => { l.y-=6; ctx.fillStyle="red"; ctx.fillRect(l.x, l.y, 4, 10); if(l.y<0) lasers.splice(li,1); });
-                    aliens.forEach((a,ai) => {
-                        a.x += a.dir * 1; if(a.x>360 || a.x<10) { aliens.forEach(al=> {al.dir*=-1; al.y+=10;}); }
-                        ctx.fillStyle="white"; ctx.fillRect(a.x, a.y, 30, 20);
-                        lasers.forEach((l,li) => { if(l.x>a.x && l.x<a.x+30 && l.y>a.y && l.y<a.y+20) { aliens.splice(ai,1); lasers.splice(li,1); score++; scoreEl.innerText=score; } });
-                        if(a.y>350) return startGame(5);
-                    });
-                }, 1000/60);
-            }
-            else if (id === 6) { // TETRIS (MINI)
-                tetrisGrid = Array(20).fill().map(()=>Array(10).fill(0));
-                currentPiece = {x:4, y:0, matrix:[[1,1],[1,1]]};
-                gameInterval = setInterval(() => {
-                    currentPiece.y++;
-                    if(currentPiece.y>18) {
-                        currentPiece.matrix.forEach((row,ri)=>row.forEach((v,ci)=>{ if(v) tetrisGrid[currentPiece.y-1+ri][currentPiece.x+ci]=1; }));
-                        currentPiece = {x:4, y:0, matrix:[[1,1],[1,1]]}; score++; scoreEl.innerText=score;
-                    }
-                    ctx.fillStyle="black"; ctx.fillRect(0,0,400,400);
-                    ctx.fillStyle="purple"; currentPiece.matrix.forEach((row,r)=>row.forEach((v,c)=>{ if(v) ctx.fillRect((currentPiece.x+c)*40, (currentPiece.y+r)*20, 38, 18); }));
-                    ctx.fillStyle="gray"; tetrisGrid.forEach((row,r)=>row.forEach((v,c)=>{ if(v) ctx.fillRect(c*40, r*20, 38, 18); }));
-                }, 300);
-            }
-            else if (id === 7) { // TIC-TAC-TOE
-                tttGrid = Array(9).fill(""); turn = "X";
-                canvas.onclick = (e) => {
-                    let rect = canvas.getBoundingClientRect(); let x = Math.floor((e.clientX - rect.left)/133); let y = Math.floor((e.clientY - rect.top)/133);
-                    let idx = y*3+x; if(tttGrid[idx]==="") { tttGrid[idx]="X"; score++; scoreEl.innerText=score; botMove(); }
-                };
-                function botMove() { let empty = tttGrid.map((v,i)=>v===""?i:null).filter(v=>v!==null); if(empty.length>0) tttGrid[empty[Math.floor(Math.random()*empty.length)]] = "O"; }
-                gameInterval = setInterval(() => {
-                    ctx.fillStyle="black"; ctx.fillRect(0,0,400,400); ctx.strokeStyle="white"; ctx.lineWidth=5;
-                    ctx.beginPath(); ctx.moveTo(133,0); ctx.lineTo(133,400); ctx.moveTo(266,0); ctx.lineTo(266,400); ctx.moveTo(0,133); ctx.lineTo(400,133); ctx.moveTo(0,266); ctx.lineTo(400,266); ctx.stroke();
-                    ctx.font = "80px Arial"; ctx.fillStyle="white"; ctx.textAlign="center";
-                    tttGrid.forEach((v,i)=> { if(v) ctx.fillText(v, (i%3)*133+66, Math.floor(i/3)*133+100); });
-                }, 100);
-            }
-            else if (id === 8) { // MEMORY GAME
-                let colors = ["red","red","blue","blue","green","green","yellow","yellow","purple","purple","orange","orange","pink","pink","cyan","cyan"];
-                colors.sort(()=>Math.random()-0.5); cards = colors.map(c=>({color:c, open:false, matched:false})); selected = [];
-                canvas.onclick = (e) => {
-                    let rect = canvas.getBoundingClientRect(); let x = Math.floor((e.clientX - rect.left)/100); let y = Math.floor((e.clientY - rect.top)/100); let idx = y*4+x;
-                    if(!cards[idx].open && selected.length<2) { cards[idx].open=true; selected.push(idx); }
-                    if(selected.length===2) {
-                        if(cards[selected[0]].color === cards[selected[1]].color) { cards[selected[0]].matched=cards[selected[1]].matched=true; score+=10; scoreEl.innerText=score; selected=[]; }
-                        else { setTimeout(()=>{ cards[selected[0]].open=cards[selected[1]].open=false; selected=[]; }, 500); }
-                    }
-                };
-                gameInterval = setInterval(() => {
-                    ctx.fillStyle="black"; ctx.fillRect(0,0,400,400);
-                    cards.forEach((c,i)=> {
-                        ctx.fillStyle = (c.open || c.matched) ? c.color : "gray";
-                        ctx.fillRect((i%4)*100+5, Math.floor(i/4)*100+5, 90, 90);
-                    });
-                }, 100);
-            }
-            else if (id === 9) { // JUMPER
-                jumper = {x:200, y:300, vy:0}; platforms = []; for(let i=0; i<6; i++) platforms.push({x:Math.random()*340, y:i*70+50});
-                gameInterval = setInterval(() => {
-                    if(keys["ArrowLeft"]) jumper.x-=4; if(keys["ArrowRight"]) jumper.x+=4;
-                    jumper.vy += 0.2; jumper.y += jumper.vy;
-                    platforms.forEach(p=> {
-                        if(jumper.vy>0 && jumper.x+20>p.x && jumper.x<p.x+60 && jumper.y+20>=p.y && jumper.y+20<=p.y+10) { jumper.vy=-8; score++; scoreEl.innerText=score; }
-                    });
-                    if(jumper.y>400) return startGame(9);
-                    ctx.fillStyle="black"; ctx.fillRect(0,0,400,400);
-                    ctx.fillStyle="red"; ctx.fillRect(jumper.x, jumper.y, 20, 20);
-                    ctx.fillStyle="white"; platforms.forEach(p=>ctx.fillRect(p.x, p.y, 60, 10));
-                }, 1000/60);
-            }
-            else if (id === 10) { // CLICKER
-                clickTime = 100; clicks = 0;
-                canvas.onclick = () => { if(clickTime>0) { clicks++; score=clicks; scoreEl.innerText=score; } };
-                gameInterval = setInterval(() => {
-                    clickTime--; ctx.fillStyle="black"; ctx.fillRect(0,0,400,400);
-                    ctx.fillStyle="white"; ctx.font="30px Arial"; ctx.textAlign="center";
-                    if(clickTime>0) { ctx.fillText("EKRANNI TEZROQ BOSING!", 200, 150); ctx.fillText("Vaqt: " + clickTime, 200, 250); }
-                    else { ctx.fillText("O'YIN TUGADI!", 200, 150); ctx.fillText("Jami kliklar: " + clicks, 200, 250); }
-                }, 100);
-            }
-        }
-    </script>
+<!-- ===== FOOD PAGE ===== -->
+<main class="page" id="page-food">
+  <div class="section-title" style="padding-top:16px;">Oziq-ovqat</div>
+  <div class="food-cats" id="foodCats"></div>
+  <div class="product-grid" id="foodGrid"></div>
+</main>
+
+<!-- ===== CART PAGE ===== -->
+<main class="page" id="page-cartpage">
+  <div class="section-title">Savat</div>
+  <div class="cart-wrap" id="cartPageWrap"></div>
+</main>
+
+<!-- ===== SEARCH PAGE ===== -->
+<main class="page" id="page-search">
+  <div class="search-wrap">
+    <div class="search-big">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" placeholder="Mahsulot nomini kiriting..." id="searchInput" oninput="searchProducts(this.value)">
+    </div>
+  </div>
+  <div id="searchResults" class="product-grid"></div>
+</main>
+
+<!-- ===== SEASONAL PAGE ===== -->
+<main class="page" id="page-seasonal">
+  <div class="seasonal-hero">
+    <h2>Mavsumiy mahsulotlar</h2>
+    <p>Yoz va kuz hosili — eng yangi va arzon</p>
+  </div>
+  <div class="product-grid" style="padding-top:12px;" id="seasonalGrid"></div>
+</main>
+
+<!-- ===== ACCOUNT PAGE ===== -->
+<main class="page" id="page-account">
+  <div class="account-wrap" id="accountWrap"></div>
+</main>
+
+<script>
+// ===================== DATA =====================
+const PRODUCTS = JSON.parse(localStorage.getItem('admin_products')) || [
+  {id:1,name:"Pomidor",cat:"Sabzavot",season:true,price:4500,weight:"1 kg",img:"https://images.unsplash.com/photo-1546094096-0df4bcaaa337?w=300&q=70"},
+  {id:2,name:"Bodring",cat:"Sabzavot",season:true,price:3200,weight:"1 kg",img:"https://images.unsplash.com/photo-1449300079323-02e209d9d3a6?w=300&q=70"},
+  {id:3,name:"Karam",cat:"Sabzavot",season:false,price:2800,weight:"1 dona",img:"https://images.unsplash.com/photo-1594282486552-05b4d80fbb9f?w=300&q=70"},
+  {id:4,name:"Sabzi",cat:"Sabzavot",season:false,price:3000,weight:"1 kg",img:"https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=300&q=70"},
+  {id:5,name:"Kartoshka",cat:"Sabzavot",season:false,price:4000,weight:"1 kg",img:"https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=300&q=70"},
+  {id:6,name:"Piyoz",cat:"Sabzavot",season:false,price:2500,weight:"1 kg",img:"https://images.unsplash.com/photo-1508747703725-719777637510?w=300&q=70"},
+  {id:7,name:"Qalampir",cat:"Sabzavot",season:true,price:5500,weight:"500 g",img:"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&q=70"},
+  {id:8,name:"Baqlajon",cat:"Sabzavot",season:true,price:4200,weight:"1 kg",img:"https://images.unsplash.com/photo-1527325678964-54921661f888?w=300&q=70"},
+  {id:9,name:"Qovoq",cat:"Sabzavot",season:true,price:3500,weight:"1 kg",img:"https://images.unsplash.com/photo-1570586437263-ab629fccc818?w=300&q=70"},
+  {id:10,name:"Sarimsoq",cat:"Sabzavot",season:false,price:6000,weight:"200 g",img:"https://images.unsplash.com/photo-1540148426945-6cf22a6b2383?w=300&q=70"},
+  {id:11,name:"Rediska",cat:"Sabzavot",season:true,price:3000,weight:"500 g",img:"https://images.unsplash.com/photo-1587049352851-8d4e89133924?w=300&q=70"},
+  {id:12,name:"Shalgam",cat:"Sabzavot",season:false,price:2800,weight:"1 kg",img:"https://images.unsplash.com/photo-1594282486552-05b4d80fbb9f?w=300&q=70"},
+  {id:13,name:"Brokkoli",cat:"Sabzavot",season:false,price:7500,weight:"500 g",img:"https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?w=300&q=70"},
+  {id:14,name:"Yangi zanjabil",cat:"Sabzavot",season:false,price:8000,weight:"200 g",img:"https://images.unsplash.com/photo-1573414405049-7c5f9c91a43f?w=300&q=70"},
+  {id:15,name:"Olma",cat:"Meva",season:true,price:6500,weight:"1 kg",img:"https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=300&q=70"},
+  {id:16,name:"Banan",cat:"Meva",season:false,price:8000,weight:"1 kg",img:"https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=300&q=70"},
+  {id:17,name:"Uzum",cat:"Meva",season:true,price:9500,weight:"1 kg",img:"https://images.unsplash.com/photo-1423483641154-5411ec9c0ddf?w=300&q=70"},
+  {id:18,name:"Nok",cat:"Meva",season:true,price:7200,weight:"1 kg",img:"https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=300&q=70"},
+  {id:19,name:"Shaftoli",cat:"Meva",season:true,price:8500,weight:"1 kg",img:"https://images.unsplash.com/photo-1595124906359-f22a0e09d0f3?w=300&q=70"},
+  {id:20,name:"Qovun",cat:"Meva",season:true,price:5000,weight:"1 kg",img:"https://images.unsplash.com/photo-1571575173700-afb9492d6960?w=300&q=70"},
+  {id:21,name:"Tarvuz",cat:"Meva",season:true,price:3500,weight:"1 kg",img:"https://images.unsplash.com/photo-1563114773-84221bd62daa?w=300&q=70"},
+  {id:22,name:"Gilos",cat:"Meva",season:true,price:15000,weight:"500 g",img:"https://images.unsplash.com/photo-1528821128474-27f963b062bf?w=300&q=70"},
+  {id:23,name:"Apelsin",cat:"Meva",season:false,price:7000,weight:"1 kg",img:"https://images.unsplash.com/photo-1547514701-42782101795e?w=300&q=70"},
+  {id:24,name:"Limon",cat:"Meva",season:false,price:5500,weight:"500 g",img:"https://images.unsplash.com/photo-1571576948090-bc76eab9b09c?w=300&q=70"},
+  {id:25,name:"Anor",cat:"Meva",season:true,price:12000,weight:"1 kg",img:"https://images.unsplash.com/photo-1541344999736-83eca272f6fc?w=300&q=70"},
+  {id:26,name:"Mango",cat:"Meva",season:false,price:18000,weight:"1 dona",img:"https://images.unsplash.com/photo-1553279768-865429fa0078?w=300&q=70"},
+  {id:27,name:"Ananas",cat:"Meva",season:false,price:22000,weight:"1 dona",img:"https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=300&q=70"},
+  {id:28,name:"Avokado",cat:"Meva",season:false,price:14000,weight:"2 dona",img:"https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?w=300&q=70"},
+  {id:29,name:"Sut 1L",cat:"Sut mahsuloti",season:false,price:8500,weight:"1 L",img:"https://images.unsplash.com/photo-1563636619-e9143da7973b?w=300&q=70"},
+  {id:30,name:"Kefir 1L",cat:"Sut mahsuloti",season:false,price:7500,weight:"1 L",img:"https://images.unsplash.com/photo-1563636619-e9143da7973b?w=300&q=70"},
+  {id:31,name:"Qatiq 500ml",cat:"Sut mahsuloti",season:false,price:5500,weight:"500 ml",img:"https://images.unsplash.com/photo-1563636619-e9143da7973b?w=300&q=70"},
+  {id:32,name:"Sariyog' 200g",cat:"Sut mahsuloti",season:false,price:18000,weight:"200 g",img:"https://images.unsplash.com/photo-1589985270958-bf087b242430?w=300&q=70"},
+  {id:33,name:"Pishloq 300g",cat:"Sut mahsuloti",season:false,price:25000,weight:"300 g",img:"https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=300&q=70"},
+  {id:34,name:"Qaymoq 200ml",cat:"Sut mahsuloti",season:false,price:9000,weight:"200 ml",img:"https://images.unsplash.com/photo-1563636619-e9143da7973b?w=300&q=70"},
+  {id:35,name:"Tvorog 250g",cat:"Sut mahsuloti",season:false,price:12000,weight:"250 g",img:"https://images.unsplash.com/photo-1563636619-e9143da7973b?w=300&q=70"},
+  {id:36,name:"Non (1 dona)",cat:"Non",season:false,price:3500,weight:"1 dona",img:"https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&q=70"},
+  {id:37,name:"Lavash",cat:"Non",season:false,price:4000,weight:"1 dona",img:"https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=300&q=70"},
+  {id:38,name:"Bulochka (5 ta)",cat:"Non",season:false,price:8000,weight:"5 dona",img:"https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=300&q=70"},
+  {id:39,name:"Kruasan",cat:"Non",season:false,price:6000,weight:"1 dona",img:"https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=300&q=70"},
+  {id:40,name:"Patir non",cat:"Non",season:false,price:5000,weight:"1 dona",img:"https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&q=70"},
+  {id:41,name:"Grissini",cat:"Non",season:false,price:7000,weight:"200 g",img:"https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&q=70"},
+  {id:42,name:"Mol go'shti",cat:"Go'sht",season:false,price:65000,weight:"1 kg",img:"https://images.unsplash.com/photo-1603048297172-c92544798d5a?w=300&q=70"},
+  {id:43,name:"Qo'y go'shti",cat:"Go'sht",season:false,price:75000,weight:"1 kg",img:"https://images.unsplash.com/photo-1529694157872-4e0c0f3b238b?w=300&q=70"},
+  {id:44,name:"Tovuq (butun)",cat:"Go'sht",season:false,price:38000,weight:"1.5 kg",img:"https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=300&q=70"},
+  {id:45,name:"Tovuq filesi",cat:"Go'sht",season:false,price:42000,weight:"1 kg",img:"https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=300&q=70"},
+  {id:46,name:"Baliq (dorado)",cat:"Go'sht",season:false,price:55000,weight:"1 kg",img:"https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=300&q=70"},
+  {id:47,name:"Kolbasa 300g",cat:"Go'sht",season:false,price:28000,weight:"300 g",img:"https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=300&q=70"},
+  {id:48,name:"Sosiska 500g",cat:"Go'sht",season:false,price:22000,weight:"500 g",img:"https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=300&q=70"},
+  {id:49,name:"Tuxum (10 ta)",cat:"Tuxum",season:false,price:16000,weight:"10 dona",img:"https://images.unsplash.com/photo-1518569656558-1f25e69d2221?w=300&q=70"},
+  {id:50,name:"Tuxum (30 ta)",cat:"Tuxum",season:false,price:45000,weight:"30 dona",img:"https://images.unsplash.com/photo-1518569656558-1f25e69d2221?w=300&q=70"},
+  {id:51,name:"Coca-Cola 2L",cat:"Ichimlik",season:false,price:16000,weight:"2 L",img:"https://images.unsplash.com/photo-1629203851122-3726ecdf080e?w=300&q=70"},
+  {id:52,name:"Pepsi 2L",cat:"Ichimlik",season:false,price:15000,weight:"2 L",img:"https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=300&q=70"},
+  {id:53,name:"Mineral suv 1.5L",cat:"Ichimlik",season:false,price:5000,weight:"1.5 L",img:"https://images.unsplash.com/photo-1548839140-2b7e19213702?w=300&q=70"}
+];
+
+let cart = JSON.parse(localStorage.getItem('hilol_cart')) || {};
+let currentUser = JSON.parse(localStorage.getItem('hilol_user')) || null;
+let currentCat = 'Barchasi';
+let foodCat = 'Barchasi';
+
+// Sahifalarni boshqarish
+function showPage(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + pageId).classList.add('active');
+
+  document.querySelectorAll('.bottom-nav .nav-item').forEach(n => n.classList.remove('active'));
+  if(document.getElementById('nav-' + pageId)) {
+    document.getElementById('nav-' + pageId).classList.add('active');
+  }
+  window.scrollTo(0,0);
+  if(pageId === 'cartpage') renderCartPage();
+  if(pageId === 'account') renderAccountPage();
+}
+
+// Boshlang'ich yuklash
+window.onload = function() {
+  renderHomeCats();
+  renderHomeGrid();
+  renderFoodCats();
+  renderFoodGrid();
+  renderSeasonalGrid();
+  updateCartBadge();
+};
+
+function formatPrice(p) {
+  return p.toLocaleString() + ' so\'m';
+}
+
+// Savatga qo'shish
+function addToCart(id) {
+  cart[id] = (cart[id] || 0) + 1;
+  saveCart();
+}
+
+function changeQty(id, delta) {
+  if(!cart[id]) return;
+  cart[id] += delta;
+  if(cart[id] <= 0) delete cart[id];
+  saveCart();
+}
+
+function saveCart() {
+  localStorage.setItem('hilol_cart', JSON.stringify(cart));
+  updateCartBadge();
+  renderHomeGrid();
+  renderFoodGrid();
+  renderSeasonalGrid();
+  if(document.getElementById('page-cartpage').classList.contains('active')) renderCartPage();
+}
+
+function updateCartBadge() {
+  let totalCount = Object.values(cart).reduce((a,b) => a+b, 0);
+  ['cartCountBadge', 'navCartBadge'].forEach(id => {
+    let el = document.getElementById(id);
+    if(el) {
+      if(totalCount > 0) {
+        el.style.display = 'flex';
+        el.innerText = totalCount;
+      } else {
+        el.style.display = 'none';
+      }
+    }
+  });
+}
+
+// Home page render
+function renderHomeCats() {
+  let cats = ['Barchasi', ...new Set(PRODUCTS.map(p => p.cat))];
+  let html = cats.map(c => `<button class="cat-chip ${c===currentCat?'active':''}" onclick="filterHomeCat('${c}')">${c}</button>`).join('');
+  document.getElementById('homeCats').innerHTML = html;
+}
+
+function filterHomeCat(cat) {
+  currentCat = cat;
+  renderHomeCats();
+  renderHomeGrid();
+}
+
+function renderHomeGrid() {
+  let list = currentCat === 'Barchasi' ? PRODUCTS : PRODUCTS.filter(p => p.cat === currentCat);
+  document.getElementById('homeGridTitle').innerText = currentCat === 'Barchasi' ? 'Barcha mahsulotlar' : currentCat;
+  document.getElementById('homeGrid').innerHTML = list.map(p => createProdCard(p)).join('');
+}
+
+// Food page render
+function renderFoodCats() {
+  let cats = ['Barchasi', ...new Set(PRODUCTS.map(p => p.cat))];
+  let html = cats.map(c => `<button class="food-cat-btn ${c===foodCat?'active':''}" onclick="filterFoodCat('${c}')">${c}</button>`).join('');
+  document.getElementById('foodCats').innerHTML = html;
+}
+
+function filterFoodCat(cat) {
+  foodCat = cat;
+  renderFoodCats();
+  renderFoodGrid();
+}
+
+function renderFoodGrid() {
+  let list = foodCat === 'Barchasi' ? PRODUCTS : PRODUCTS.filter(p => p.cat === foodCat);
+  document.getElementById('foodGrid').innerHTML = list.map(p => createProdCard(p)).join('');
+}
+
+// Seasonal page render
+function renderSeasonalGrid() {
+  let list = PRODUCTS.filter(p => p.season);
+  let el = document.getElementById('seasonalGrid');
+  if(el) el.innerHTML = list.map(p => createProdCard(p)).join('');
+}
+
+// Mahsulot kartasini yasash
+function createProdCard(p) {
+  let qty = cart[p.id] || 0;
+  let ctrlHtml = qty === 0
+    ? `<button class="add-btn" onclick="addToCart(${p.id})">+</button>`
+    : `<div class="qty-ctrl">
+         <button onclick="changeQty(${p.id}, -1)">-</button>
+         <span>${qty}</span>
+         <button class="plus" onclick="changeQty(${p.id}, 1)">+</button>
+       </div>`;
+
+  return `
+    <div class="prod-card">
+      <img class="prod-img" src="${p.img}" alt="${p.name}">
+      <div class="prod-body">
+        <div class="prod-name">${p.name}</div>
+        <div class="prod-weight">${p.weight}</div>
+        <div class="prod-row">
+          <div class="prod-price">${p.price.toLocaleString()}<small> so'm</small></div>
+          ${ctrlHtml}
+        </div>
+      </div>
+    </div>`;
+}
+
+// Qidiruv
+function searchProducts(q) {
+  let s = q.toLowerCase().trim();
+  let res = s === '' ? [] : PRODUCTS.filter(p => p.name.toLowerCase().includes(s) || p.cat.toLowerCase().includes(s));
+  document.getElementById('searchResults').innerHTML = res.map(p => createProdCard(p)).join('');
+}
+
+function headerSearchFn(val) {
+  if(document.getElementById('searchInput')) {
+    document.getElementById('searchInput').value = val;
+    searchProducts(val);
+  }
+}
+
+// Savat sahifasi
+function renderCartPage() {
+  let wrap = document.getElementById('cartPageWrap');
+  let keys = Object.keys(cart);
+  if(keys.length === 0) {
+    wrap.innerHTML = `
+      <div class="cart-empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        <p>Savatingiz bo'sh</p>
+        <small>Mahsulotlar qo'shish uchun asosiy sahifaga o'ting</small>
+      </div>`;
+    return;
+  }
+
+  let subtotal = 0;
+  let itemsHtml = keys.map(id => {
+    let p = PRODUCTS.find(x => x.id == id);
+    if(!p) return '';
+    let qty = cart[id];
+    subtotal += p.price * qty;
+    return `
+      <div class="cart-item-row">
+        <img class="cart-item-img" src="${p.img}" alt="${p.name}">
+        <div class="cart-item-info">
+          <div class="cart-item-name">${p.name}</div>
+          <div class="cart-item-price">${formatPrice(p.price)}</div>
+        </div>
+        <div class="qty-ctrl">
+          <button onclick="changeQty(${p.id}, -1)">-</button>
+          <span>${qty}</span>
+          <button class="plus" onclick="changeQty(${p.id}, 1)">+</button>
+        </div>
+        <button class="cart-del" onclick="delete cart[${p.id}]; saveCart();">&#x2715;</button>
+      </div>`;
+  }).join('');
+
+  let delivery = subtotal > 100000 ? 0 : 15000;
+  let total = subtotal + delivery;
+
+  wrap.innerHTML = `
+    ${itemsHtml}
+    <div class="cart-summary">
+      <div class="cart-summary-row"><span>Mahsulotlar (${keys.length}):</span> <span>${formatPrice(subtotal)}</span></div>
+      <div class="cart-summary-row"><span>Yetkazib berish:</span> <span>${delivery === 0 ? 'Bepul' : formatPrice(delivery)}</span></div>
+      <div class="cart-summary-total"><span>Jami:</span> <span>${formatPrice(total)}</span></div>
+      <button class="order-btn" onclick="checkout()">Buyurtma berish</button>
+    </div>`;
+}
+
+// O'ng panel (Savat uchun)
+function openRightPanel(type) {
+  if(type === 'cart') {
+    document.getElementById('rightPanelTitle').innerText = 'Savat';
+    let keys = Object.keys(cart);
+    let body = document.getElementById('rightPanelBody');
+    let footer = document.getElementById('rightPanelFooter');
+
+    if(keys.length === 0) {
+      body.innerHTML = '<div style="text-align:center;color:#999;padding:40px 0;">Savatingiz bo\'sh</div>';
+      footer.style.display = 'none';
+    } else {
+      let subtotal = 0;
+      body.innerHTML = keys.map(id => {
+        let p = PRODUCTS.find(x => x.id == id);
+        if(!p) return '';
+        subtotal += p.price * cart[id];
+        return `<div style="display:flex;justify-content:space-between;margin-bottom:10px;font-size:13px;"><span>${p.name} (${cart[id]}x)</span> <strong>${formatPrice(p.price * cart[id])}</strong></div>`;
+      }).join('');
+
+      footer.style.display = 'block';
+      footer.innerHTML = `
+        <div style="display:flex;justify-content:space-between;margin-bottom:12px;font-weight:700;"><span>Jami:</span> <span>${formatPrice(subtotal)}</span></div>
+        <button class="order-btn" style="margin-top:0;" onclick="closeRightPanel(); showPage('cartpage');">Savatga o'tish</button>`;
+    }
+  }
+  document.getElementById('rightPanel').classList.add('open');
+  document.getElementById('overlay').classList.add('show');
+}
+
+function closeRightPanel() {
+  document.getElementById('rightPanel').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+}
+
+// Autentifikatsiya va Kabinet logikasi
+function checkAuthAndOpenProfile() {
+  if(currentUser) {
+    showPage('account');
+  } else {
+    document.getElementById('authModal').classList.add('show');
+  }
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('show');
+}
+
+function sendAuthSms() {
+  let phone = document.getElementById('authPhone').value;
+  if(!phone) {
+    alert('Telefon raqamni kiriting!');
+    return;
+  }
+  document.getElementById('authStepPhone').style.display = 'none';
+  document.getElementById('authStepSms').style.display = 'block';
+}
+
+function backToPhoneStep() {
+  document.getElementById('authStepSms').style.display = 'none';
+  document.getElementById('authStepPhone').style.display = 'block';
+}
+
+function verifyAuthSms() {
+  let code = document.getElementById('authSmsCode').value;
+  if(code.length < 4) {
+    alert('Kod noto\'g\'ri!');
+    return;
+  }
+  document.getElementById('authStepSms').style.display = 'none';
+  document.getElementById('authStepName').style.display = 'block';
+}
+
+function completeAuthName() {
+  let name = document.getElementById('authUserName').value;
+  let phone = document.getElementById('authPhone').value;
+  if(!name) {
+    alert('Ismingizni kiriting!');
+    return;
+  }
+  currentUser = {name, phone};
+  localStorage.setItem('hilol_user', JSON.stringify(currentUser));
+  closeModal('authModal');
+  document.getElementById('accountNavLabel').innerText = currentUser.name;
+  showPage('account');
+}
+
+function renderAccountPage() {
+  let wrap = document.getElementById('accountWrap');
+  if(!currentUser) {
+    checkAuthAndOpenProfile();
+    return;
+  }
+  wrap.innerHTML = `
+    <div class="account-header-card">
+      <div class="account-avatar">${currentUser.name.charAt(0).toUpperCase()}</div>
+      <div>
+        <div class="account-name">${currentUser.name}</div>
+        <div class="account-email">${currentUser.phone}</div>
+      </div>
+    </div>
+    <div class="account-menu-item" onclick="alert('Buyurtmalar tarixi tez kunda qo\'shiladi')">
+      <div class="account-menu-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/></svg></div>
+      <div class="account-menu-text"><strong>Buyurtmalarim</strong><small>Faol va yakunlangan buyurtmalar</small></div>
+      <div class="chevron">&rsaquo;</div>
+    </div>
+    <div class="account-menu-item" onclick="logout()">
+      <div class="account-menu-icon" style="background:#ffebee;"><svg viewBox="0 0 24 24" fill="none" stroke="#e53935" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></div>
+      <div class="account-menu-text"><strong style="color:#e53935;">Chiqish</strong><small>Hisobdan chiqish</small></div>
+      <div class="chevron">&rsaquo;</div>
+    </div>`;
+}
+
+function logout() {
+  currentUser = null;
+  localStorage.removeItem('hilol_user');
+  document.getElementById('accountNavLabel').innerText = 'Kabinet';
+  showPage('home');
+}
+
+function checkout() {
+  if(!currentUser) {
+    checkAuthAndOpenProfile();
+    return;
+  }
+  alert('Buyurtmangiz qabul qilindi! Tez orada operatorimiz bog\'lanadi.');
+  cart = {};
+  saveCart();
+  showPage('home');
+}
+</script>
 </body>
 </html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hilol Mini Market - Admin Kirish</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}
+body{background:#f5f5f5;color:#1a1a1a;padding:20px;display:flex;justify-content:center;align-items:center;height:100vh;}
+.container{max-width:400px;width:100%;}
+header{background:#1a6b2f;color:#fff;padding:16px 20px;border-radius:12px;display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+h1{font-size:18px;}
+.back-btn{color:#fff;text-decoration:none;font-size:13px;background:rgba(255,255,255,0.2);padding:6px 12px;border-radius:6px;}
+.card{background:#fff;border-radius:12px;padding:20px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
+.card h3{margin-bottom:14px;font-size:16px;color:#1a6b2f;text-align:center;}
+.m-input{width:100%;background:#f9f9f9;border:1.5px solid #e8e8e8;border-radius:8px;padding:12px;font-size:14px;outline:none;margin-bottom:12px;}
+.m-input:focus{border-color:#1a6b2f;}
+.m-submit{background:#1a6b2f;color:#fff;border:none;padding:12px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;width:100%;}
+.m-submit:hover{background:#145a26;}
+.error-msg{color:#c62828;font-size:13px;text-align:center;margin-bottom:10px;display:none;}
+.prod-item{display:flex;align-items:center;justify-content:space-between;padding:10px;border-bottom:1px solid #eee;}
+.prod-info{display:flex;align-items:center;gap:10px;}
+.prod-info img{width:40px;height:40px;border-radius:6px;object-fit:cover;}
+.del-btn{background:#ffebee;color:#c62828;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN QISMI -->
+<div id="loginSection" class="container">
+  <div class="card">
+    <h3>🔒 Admin Panelga Kirish</h3>
+    <div id="errorMsg" class="error-msg">Login yoki parol xato!</div>
+    <form onsubmit="handleLogin(event)">
+      <input class="m-input" type="text" id="loginUser" placeholder="Admin foydalanuvchi nomi" required autocomplete="username">
+      <input class="m-input" type="password" id="loginPass" placeholder="Maxfiy parol" required autocomplete="current-password">
+      <button class="m-submit" type="submit">Tizimga kirish</button>
+    </form>
+  </div>
+</div>
+
+<!-- ADMIN PANEL QISMI (Boshida yashirin turadi) -->
+<div id="adminSection" class="container" style="display:none; max-width:800px;">
+  <header>
+    <h1>🛠 Hilol Admin Panel</h1>
+    <div style="display:flex; gap:10px; align-items:center;">
+      <a href="index.html" class="back-btn">Asosiy saytga</a>
+      <button onclick="handleLogout()" class="back-btn" style="background:#c62828; border:none; cursor:pointer;">Chiqish</button>
+    </div>
+  </header>
+
+  <!-- Statistika -->
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:20px;">
+    <div class="card" style="margin-bottom:0; text-align:center;">
+      <small style="color:#666;">Jami mahsulotlar</small>
+      <h2 id="totalCount" style="color:#1a6b2f; margin-top:5px;">0</h2>
+    </div>
+    <div class="card" style="margin-bottom:0; text-align:center;">
+      <small style="color:#666;">Buyurtmalar soni</small>
+      <h2 id="orderCount" style="color:#1565c0; margin-top:5px;">0</h2>
+    </div>
+  </div>
+
+  <!-- Mahsulot qo'shish -->
+  <div class="card">
+    <h3>➕ Yangi mahsulot qo'shish</h3>
+    <form onsubmit="addNewProduct(event)" class="form-grid">
+      <input class="m-input" type="text" id="pName" placeholder="Mahsulot nomi" required style="grid-column:span 1;">
+      <input class="m-input" type="text" id="pCat" placeholder="Kategoriyasi (Meva, Sabzavot...)" required style="grid-column:span 1;">
+      <input class="m-input" type="number" id="pPrice" placeholder="Narxi (so'm)" required style="grid-column:span 1;">
+      <input class="m-input" type="text" id="pWeight" placeholder="O'lchami (1 kg, 1 dona...)" required style="grid-column:span 1;">
+      <input class="m-input" type="text" id="pImg" placeholder="Rasm URL manzili" required style="grid-column:span 2;">
+      <label style="grid-column:span 2; font-size:13px; display:flex; align-items:center; gap:6px; margin-bottom:10px;">
+        <input type="checkbox" id="pSeason"> Mavsumiy mahsulotmi?
+      </label>
+      <button class="m-submit" type="submit" style="grid-column:span 2;">Mahsulotni saqlash</button>
+    </form>
+  </div>
+
+  <!-- Mahsulotlar ro'yxati -->
+  <div class="card">
+    <h3>📦 Mahsulotlar boshqaruvi</h3>
+    <div id="adminProductList"></div>
+  </div>
+</div>
+
+<script>
+// --- XAVFSIZLIK VA LOGIN Mantiqi ---
+// O'zingizga mos username va parolni shu yerga yozing:
+const ADMIN_USER = "hilol_admin";
+const ADMIN_PASS = "hilol2026"; // Parolni o'zgartirishingiz mumkin
+
+// Sahifa yuklanganda sessiyani tekshirish
+window.onload = function() {
+  if (sessionStorage.getItem('isLoggedIn') === 'true') {
+    showAdminPanel();
+  }
+};
+
+function handleLogin(e) {
+  e.preventDefault();
+  const uInput = document.getElementById('loginUser').value.trim();
+  const pInput = document.getElementById('loginPass').value.trim();
+  const errorMsg = document.getElementById('errorMsg');
+
+  if (uInput === ADMIN_USER && pInput === ADMIN_PASS) {
+    sessionStorage.setItem('isLoggedIn', 'true');
+    showAdminPanel();
+  } else {
+    errorMsg.style.display = 'block';
+    document.getElementById('loginPass').value = '';
+  }
+}
+
+function showAdminPanel() {
+  document.getElementById('loginSection').style.display = 'none';
+  document.getElementById('adminSection').style.display = 'block';
+  document.body.style.alignItems = 'flex-start'; // Yuqoriga surish
+  updateUI();
+}
+
+function handleLogout() {
+  sessionStorage.removeItem('isLoggedIn');
+  location.reload(); // Sahifani yangilab login oynasiga qaytarish
+}
+
+// --- MAHSULOTLARNI BOSHQARISH Mantiqi ---
+let products = JSON.parse(localStorage.getItem('admin_products')) || [
+  {id:1,name:"Pomidor",cat:"Sabzavot",season:true,price:4500,weight:"1 kg",img:"https://images.unsplash.com/photo-1546094096-0df4bcaaa337?w=300&q=70"},
+  {id:2,name:"Bodring",cat:"Sabzavot",season:true,price:3200,weight:"1 kg",img:"https://images.unsplash.com/photo-1449300079323-02e209d9d3a6?w=300&q=70"}
+];
+
+function updateUI() {
+  document.getElementById('totalCount').innerText = products.length;
+  document.getElementById('orderCount').innerText = JSON.parse(localStorage.getItem('orders') || '[]').length;
+
+  const list = document.getElementById('adminProductList');
+  list.innerHTML = products.map(p => `
+    <div class="prod-item">
+      <div class="prod-info">
+        <img src="${p.img}" alt="">
+        <div>
+          <div style="font-size:13px; font-weight:600;">${p.name}</div>
+          <small style="color:#666;">${p.price} so'm / ${p.weight} (${p.cat})</small>
+        </div>
+      </div>
+      <button class="del-btn" onclick="deleteProduct(${p.id})">O'chirish</button>
+    </div>
+  `).join('');
+
+  localStorage.setItem('admin_products', JSON.stringify(products));
+}
+
+function addNewProduct(e) {
+  e.preventDefault();
+  const newP = {
+    id: Date.now(),
+    name: document.getElementById('pName').value,
+    cat: document.getElementById('pCat').value,
+    price: Number(document.getElementById('pPrice').value),
+    weight: document.getElementById('pWeight').value,
+    img: document.getElementById('pImg').value,
+    season: document.getElementById('pSeason').checked
+  };
+
+  products.unshift(newP);
+  updateUI();
+  e.target.reset();
+  alert("Mahsulot muvaffaqiyatli qo'shildi!");
+}
+
+function deleteProduct(id) {
+  if (confirm("Rostdan ham bu mahsulotni o'chirmoqchimisiz?")) {
+    products = products.filter(p => p.id !== id);
+    updateUI();
+  }
+}
+</script>
+
+</body>
+</html>
